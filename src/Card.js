@@ -1,8 +1,13 @@
 import React from "react";
+import "./Card.css";
 
-const Card = ({suit, value}) => {
+const Card = ({imageURL}) => {
+
     return (
-        <div className="Card"></div>
+        <img 
+            className="Card"
+            src={imageURL}
+        />
     )
 }
 
