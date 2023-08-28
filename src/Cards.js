@@ -11,6 +11,7 @@ const Cards = () => {
 
     const [deckInfo, setDeckInfo] = useState(null);
     const [shownCards, setShownCards] = useState([{imageURL: "https://deckofcardsapi.com/static/img/back.png"}]);
+    const [deckStatus, setDeckStatus] = useState({buttonText: "Draw", cardsRemaining: null})
 
     useEffect(() => {
         async function loadDeck() {
@@ -25,12 +26,34 @@ const Cards = () => {
             const res = await axios.get(`${Deck_API_URL}${deckInfo.deck_id}/draw`);
             if (res.data.remaining > 0) {
                 setShownCards([...shownCards, {imageURL: res.data.cards[0].image}])
+                setDeckStatus({...deckStatus, cardsRemaining: res.data.remaining})
             }
             else {
-                
+                setDeckStatus({...deckStatus, buttonText:"Shuffle", cardsRemaining: res.data.remaining})
             }
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    const shuffleDeck = () => {
+        async function loadDeck() {
+            const res = await axios.get(`${Deck_API_URL}new/shuffle`)
+            setDeckInfo(res.data);
+        }
+        loadDeck();
+        setShownCards([{imageURL: "https://deckofcardsapi.com/static/img/back.png"}]);
+        setDeckStatus({...deckStatus, buttonText:"Draw"})
+    }
+
+    const buttonFunction = () => {
+        if (deckStatus.buttonText === "Draw") {
+            drawCard();
+        }
+        else if (deckStatus.buttonText === "Shuffle") {
+            setDeckStatus({...deckStatus, buttonText:"Shuffling..."})
+            shuffleDeck();
+
         }
     }
 
@@ -43,7 +66,7 @@ const Cards = () => {
                     })
                 }
             </div>
-            <Button text={"Draw"} htmlClassName={"Button"} clickFunction={drawCard}/>
+            <Button text={deckStatus.buttonText} htmlClassName={"Button"} clickFunction={buttonFunction}/>
         </>
     )
 
